@@ -10,8 +10,6 @@
         textarea { width: 100%; height: 200px; padding: 10px; border-radius: 5px; border: 1px solid #00ffcc; background: #000; color: #00ffcc; font-size: 16px; }
         button { width: 100%; padding: 15px; margin-top: 20px; background: #00ffcc; color: #121212; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; }
         button:hover { background: #00cc99; }
-        .radio-group { display: flex; justify-content: space-around; margin-bottom: 20px; }
-        .radio-group label { font-size: 18px; cursor: pointer; }
         .description { font-size: 16px; color: #99ffcc; margin-bottom: 20px; }
         h2 { text-align: center; color: #00ffcc; }
     </style>
@@ -19,19 +17,13 @@
 <body>
     <div class="container">
         <h2>BAN形式の三進数テキスト変換アプリ</h2>
-        <p class="description">このツールは、テキストをBAN形式の三進数に変換したり、BAN形式のデータを元のテキストに戻すことができます。</p>
-        <div class="radio-group">
-            <label>
-                <input type="radio" name="mode" value="BAN2Text" checked> BAN → テキスト
-            </label>
-            <label>
-                <input type="radio" name="mode" value="Text2BAN"> テキスト → BAN
-            </label>
-        </div>
+        <p class="description">このツールは、テキストをBAN形式の三進数に変換したり、BAN形式のデータを元のテキストに戻すことができます。入力データを自動認識して変換します。</p>
         
-        <p id="inputLabel">BAN形式の三進数データを入力してください（文字数は 13 の倍数）</p>
+        <p>入力:</p>
         <textarea id="inputText" placeholder="ここに入力..."></textarea>
+        
         <button onclick="convert()">変換</button>
+        <button onclick="copyToClipboard('outputText')">コピー</button>
         
         <p>変換結果:</p>
         <textarea id="outputText" readonly></textarea>
@@ -60,15 +52,25 @@
             }).join('');
         }
 
+        function isBanFormat(input) {
+            return /^[BAN]+$/.test(input) && input.length % GROUP_LENGTH === 0;
+        }
+
         function convert() {
-            const mode = document.querySelector('input[name="mode"]:checked').value;
             const inputData = document.getElementById("inputText").value.trim();
             try {
-                const output = mode === "BAN2Text" ? banToText(inputData) : textToBan(inputData);
+                const output = isBanFormat(inputData) ? banToText(inputData) : textToBan(inputData);
                 document.getElementById("outputText").value = output;
             } catch (e) {
                 alert(e.message);
             }
+        }
+
+        function copyToClipboard(elementId) {
+            const textArea = document.getElementById(elementId);
+            textArea.select();
+            document.execCommand("copy");
+            alert("コピーしました!");
         }
     </script>
 </body>
