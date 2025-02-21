@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BAN形式の三進数テキスト変換アプリ</title>
+    <style>
+        body { font-family: 'Courier New', monospace; margin: 0; padding: 0; background-color: #121212; color: #00ffcc; }
+        .container { max-width: 900px; margin: 40px auto; background: #1e1e1e; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 15px rgba(0, 255, 204, 0.6); }
+        textarea { width: 100%; height: 200px; padding: 10px; border-radius: 5px; border: 1px solid #00ffcc; background: #000; color: #00ffcc; font-size: 16px; }
+        button { width: 100%; padding: 15px; margin-top: 20px; background: #00ffcc; color: #121212; border: none; border-radius: 5px; cursor: pointer; font-size: 18px; font-weight: bold; }
+        button:hover { background: #00cc99; }
+        .radio-group { display: flex; justify-content: space-around; margin-bottom: 20px; }
+        .radio-group label { font-size: 18px; cursor: pointer; }
+        .description { font-size: 16px; color: #99ffcc; margin-bottom: 20px; }
+        h2 { text-align: center; color: #00ffcc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>BAN形式の三進数テキスト変換アプリ</h2>
+        <p class="description">このツールは、テキストをBAN形式の三進数に変換したり、BAN形式のデータを元のテキストに戻すことができます。</p>
+        <div class="radio-group">
+            <label>
+                <input type="radio" name="mode" value="BAN2Text" checked> BAN → テキスト
+            </label>
+            <label>
+                <input type="radio" name="mode" value="Text2BAN"> テキスト → BAN
+            </label>
+        </div>
+        
+        <p id="inputLabel">BAN形式の三進数データを入力してください（文字数は 13 の倍数）</p>
+        <textarea id="inputText" placeholder="ここに入力..."></textarea>
+        <button onclick="convert()">変換</button>
+        
+        <p>変換結果:</p>
+        <textarea id="outputText" readonly></textarea>
+    </div>
+    
+    <script>
+        const GROUP_LENGTH = 13;
+        function banToText(banStr) {
+            const mapping = { 'B': '0', 'A': '1', 'N': '2' };
+            if (![...banStr].every(c => 'BAN'.includes(c)) || banStr.length % GROUP_LENGTH !== 0) {
+                throw new Error(`入力はBAN文字のみで、長さは${GROUP_LENGTH}の倍数である必要があります。`);
+            }
+            let result = '';
+            for (let i = 0; i < banStr.length; i += GROUP_LENGTH) {
+                const digitStr = [...banStr.slice(i, i + GROUP_LENGTH)].map(c => mapping[c]).join('');
+                result += String.fromCharCode(parseInt(digitStr, 3));
+            }
+            return result;
+        }
+        
+        function textToBan(text) {
+            const reverseMapping = ['B', 'A', 'N'];
+            return [...text].map(char => {
+                let base3 = char.charCodeAt(0).toString(3).padStart(GROUP_LENGTH, '0');
+                return [...base3].map(d => reverseMapping[d]).join('');
+            }).join('');
+        }
+
+        function convert() {
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+            const inputData = document.getElementById("inputText").value.trim();
+            try {
+                const output = mode === "BAN2Text" ? banToText(inputData) : textToBan(inputData);
+                document.getElementById("outputText").value = output;
+            } catch (e) {
+                alert(e.message);
+            }
+        }
+    </script>
+</body>
+</html>
